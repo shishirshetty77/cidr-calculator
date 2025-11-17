@@ -1,0 +1,8 @@
+credentials_file = "/path/to/your/service-account-key.json"
+project_id       = "your-gcp-project-id"
+project_name     = "cidr-calculator"
+region           = "us-central1"
+zone             = "us-central1-a"
+gke_num_nodes    = 1
+machine_type     = "e2-small"
+environment      = "production"

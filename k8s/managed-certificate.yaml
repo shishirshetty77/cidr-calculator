@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: cidr-calculator-cert
+spec:
+  domains:
+    - yourdomain.com
+    - www.yourdomain.com

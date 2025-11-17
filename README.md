@@ -1,158 +1,178 @@
-# 🌐 CIDR Calculator Pro
+# CIDR Calculator - Production Deployment
 
-A complete, modern CIDR utility web application built with Next.js, TypeScript, and Tailwind CSS. Professional network planning and IP management toolkit with real-time validation and an intuitive, premium UI.
+A production-ready CIDR Calculator web application with automated deployment to Google Kubernetes Engine.
 
-## ✨ Features
+## Features
 
-### 1. 📊 CIDR to IP Range Calculator
-- Convert CIDR notation to detailed network information
-- Display network address, broadcast address, and usable IP range
-- Calculate total hosts and usable hosts
-- Show subnet mask, wildcard mask, and binary representations
-- IP class identification
+### CIDR Tools
+- CIDR to IP Range conversion with network details
+- IP Range to CIDR converter
+- Subnet calculator (by count or hosts)
+- Netmask converter (CIDR/subnet/wildcard masks)
+- CIDR overlap checker and conflict resolver
 
-### 2. 🔄 IP Range to CIDR Converter
-- Convert IP address ranges to optimal CIDR blocks
-- Automatically calculates the best-fit CIDR notation
-- Supports multiple CIDR blocks for complex ranges
-- One-click copy functionality
+### Technical
+- Next.js 15 with TypeScript
+- Server-side validation
+- Responsive design
+- Dark/Light theme
+- Auto-scaling deployment
+- Production-grade security
 
-### 3. 🔧 Subnet Calculator
-- Divide networks by number of subnets needed
-- Divide networks by minimum hosts per subnet
-- Complete subnet information including:
-  - Network and broadcast addresses
-  - Usable IP ranges
-  - Host counts per subnet
-- Visual subnet table with copy options
+## Quick Start
 
-### 4. 🔀 Netmask Converter
-- Convert between CIDR notation, subnet masks, wildcard masks, and prefix lengths
-- Perfect for firewall and ACL rule configuration
-- Binary mask visualization
-- Support for all common netmask formats
-
-### 5. ⚠️ CIDR Overlap Checker
-- Identify overlapping CIDR blocks
-- Detect conflicts in network configurations
-- Receive intelligent suggestions for corrections
-- Visual conflict highlighting
-
-## 🏗️ Architecture
-
-```
-cidr/
-├── app/
-│   ├── api/
-│   │   ├── cidr-to-range/
-│   │   ├── range-to-cidr/
-│   │   ├── subnet/
-│   │   ├── mask-converter/
-│   │   └── overlap-checker/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   └── globals.css
-├── components/
-│   ├── CIDRToRange.tsx
-│   ├── RangeToCIDR.tsx
-│   ├── SubnetCalculator.tsx
-│   ├── MaskConverter.tsx
-│   └── OverlapChecker.tsx
-└── utils/
-    └── ipMath.ts (Core IP calculation utilities)
+### Prerequisites
+```bash
+gcloud version
+terraform version
+kubectl version
+docker --version
 ```
 
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Validation**: Real-time client & server-side validation
-- **Deployment**: Optimized for Vercel
-
-## 🚀 Getting Started
-
-First, run the development server:
+### Deploy
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Configure
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+nano terraform.tfvars  # Update credentials_file and project_id
+
+# Deploy infrastructure
+terraform init
+terraform apply
+
+# Deploy application
+gcloud container clusters get-credentials cidr-calculator-gke-cluster --zone us-central1-a
+kubectl apply -f k8s/
+kubectl get ingress cidr-calculator-ingress  # Wait for IP
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration
 
-## 📦 Build for Production
+### Terraform Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| credentials_file | Path to GCP service account JSON | Required |
+| project_id | GCP Project ID | Required |
+| project_name | Resource naming prefix | cidr-calculator |
+| region | GCP region | us-central1 |
+| zone | GCP zone | us-central1-a |
+| gke_num_nodes | Initial node count | 1 |
+| machine_type | Node type | e2-small |
+
+### Using Your Docker Image
+
+Edit `k8s/deployment.yaml`:
+```yaml
+image: your-username/cidr-calculator:latest
+```
+
+For private registries:
+```bash
+kubectl create secret docker-registry regcred \
+  --docker-server=<server> \
+  --docker-username=<user> \
+  --docker-password=<password>
+```
+
+## Infrastructure
+
+### GCP Resources
+- VPC Network (10.0.0.0/24)
+- GKE Zonal Cluster
+- 1x e2-small node (preemptible)
+- 30GB standard disk
+- Global Load Balancer
+
+### Architecture
+```
+Internet → Load Balancer → VPC → GKE → Pods
+```
+
+## Operations
+
+### Monitoring
+```bash
+kubectl get all
+kubectl logs -l app=cidr-calculator
+kubectl top pods
+kubectl get events
+```
+
+### Scaling
+```bash
+kubectl scale deployment cidr-calculator --replicas=2
+kubectl get hpa
+```
+
+### Updates
+```bash
+kubectl set image deployment/cidr-calculator cidr-calculator=newimage:tag
+kubectl rollout status deployment/cidr-calculator
+```
+
+### Port Forward (Testing)
+```bash
+kubectl port-forward service/cidr-calculator-service 8080:80
+```
+
+## Cost
+
+### Monthly Estimate (us-central1)
+- GKE Zonal Cluster: FREE
+- 1x e2-small (preemptible): ~$7.30
+- Load Balancer: ~$18.00
+- 30GB Disk: ~$1.20
+- **Total: ~$27-32/month**
+
+## Troubleshooting
+
+### Pod Issues
+```bash
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl logs <pod-name> --previous
+```
+
+### Ingress No IP (wait 5-10 min)
+```bash
+kubectl describe ingress cidr-calculator-ingress
+kubectl get endpoints
+```
+
+### Common Fixes
+```bash
+kubectl delete pod <pod-name> --force
+kubectl rollout restart deployment/cidr-calculator
+```
+
+## Cleanup
 
 ```bash
-npm run build
-npm start
+kubectl delete -f k8s/
+cd terraform && terraform destroy
 ```
 
-## 🌐 Deploy to Vercel
+## CI/CD
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+GitHub Actions workflows:
+- `.github/workflows/ci.yml` - Lint and build (ignores terraform/, k8s/, *.md)
+- `.github/workflows/docker-build.yml` - Build Docker image
+- `.github/workflows/version-bump.yml` - Automated versioning
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Security
 
-## 🎨 UI/UX Features
+- Credentials never committed
+- Pods in private VPC
+- Kubernetes Secrets for sensitive data
+- Auto-upgrade enabled
+- Workload Identity configured
 
-- **Clean & Modern Design**: Gradient backgrounds, smooth shadows, and premium feel
-- **Mobile-First Responsive**: Works perfectly on all screen sizes
-- **Smooth Animations**: Fade-in and slide-up effects for better UX
-- **Real-time Validation**: Instant feedback on user input
-- **Tab Navigation**: Easy switching between tools
-- **Copy to Clipboard**: Quick copy functionality for all results
-- **Error Handling**: Clear, helpful error messages
-- **Accessibility**: Semantic HTML and ARIA labels
+## License
 
-## 🧮 Core Utilities (utils/ipMath.ts)
-
-All IP mathematics are handled server-side with strict validation:
-
-- `ipToInt()` / `intToIp()`: IP ↔ Integer conversion
-- `validateCIDR()` / `validateIP()`: Input validation
-- `prefixToMask()` / `maskToPrefix()`: Mask conversion
-- `cidrToRange()`: CIDR to IP range calculation
-- `rangeToCIDR()`: IP range to optimal CIDR blocks
-- `subnetByCount()` / `subnetByHosts()`: Subnetting
-- `checkMultipleOverlaps()`: Overlap detection
-
-## 📝 API Endpoints
-
-- `POST /api/cidr-to-range`: Calculate IP range from CIDR
-- `POST /api/range-to-cidr`: Convert IP range to CIDR
-- `POST /api/subnet`: Calculate subnets
-- `POST /api/mask-converter`: Convert between mask formats
-- `POST /api/overlap-checker`: Check CIDR overlaps
-
-## 🔍 Example Usage
-
-### CIDR to Range
-Input: `192.168.1.0/24`  
-Output: Network info, 254 usable hosts, full range details
-
-### Range to CIDR
-Input: `10.0.0.0` to `10.0.3.255`  
-Output: `10.0.0.0/22`
-
-### Subnetting
-Input: `172.16.0.0/16`, 4 subnets  
-Output: Four /18 subnets with complete details
-
-### Overlap Check
-Input: Multiple CIDRs  
-Output: Conflict detection and suggestions
-
-## 📄 License
-
-MIT License - feel free to use this project for any purpose.
+MIT
 
 ---
 
-**Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**
+**Tech Stack:** Next.js · TypeScript · Tailwind CSS · Kubernetes · Terraform · GCP

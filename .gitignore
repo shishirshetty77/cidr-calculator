@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/terraform.tfvars
+
+# GCP Credentials
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# Kubernetes secrets
+k8s/*secret*.yaml
