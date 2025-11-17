@@ -3,6 +3,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { Footer } from '@/components/layout/footer';
+import CIDRToRange from '@/components/CIDRToRange';
+import RangeToCIDR from '@/components/RangeToCIDR';
+import SubnetCalculator from '@/components/SubnetCalculator';
+import MaskConverter from '@/components/MaskConverter';
+import OverlapChecker from '@/components/OverlapChecker';
 
 export default function Home() {
   return (
@@ -28,23 +33,23 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="cidr-calculator" className="space-y-4">
-            <p>CIDR Calculator component coming soon</p>
+            <CIDRToRange />
           </TabsContent>
 
           <TabsContent value="range-converter" className="space-y-4">
-            <p>Range Converter component coming soon</p>
+            <RangeToCIDR />
           </TabsContent>
 
           <TabsContent value="subnetting" className="space-y-4">
-            <p>Subnetting Tool component coming soon</p>
+            <SubnetCalculator />
           </TabsContent>
 
           <TabsContent value="mask-converter" className="space-y-4">
-            <p>Mask Converter component coming soon</p>
+            <MaskConverter />
           </TabsContent>
 
           <TabsContent value="overlap-checker" className="space-y-4">
-            <p>Overlap Checker component coming soon</p>
+            <OverlapChecker />
           </TabsContent>
         </Tabs>
       </main>
