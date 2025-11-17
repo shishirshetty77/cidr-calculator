@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Overlap {
   cidr1: string;
@@ -15,7 +18,7 @@ interface OverlapResult {
 }
 
 export default function OverlapChecker() {
-  const [cidrsText, setCidrsText] = useState('');
+  const [cidrs, setCidrs] = useState('');
   const [result, setResult] = useState<OverlapResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,16 +28,19 @@ export default function OverlapChecker() {
     setResult(null);
     setLoading(true);
 
-    try {
-      const cidrs = cidrsText
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
+    const cidrArray = cidrs.split('\n').map(c => c.trim()).filter(c => c);
 
+    if (cidrArray.length < 2) {
+      setError('Please enter at least 2 CIDR blocks');
+      setLoading(false);
+      return;
+    }
+
+    try {
       const response = await fetch('/api/overlap-checker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cidrs })
+        body: JSON.stringify({ cidrs: cidrArray })
       });
 
       const data = await response.json();
@@ -44,7 +50,7 @@ export default function OverlapChecker() {
       } else {
         setResult(data);
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -53,113 +59,134 @@ export default function OverlapChecker() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-red-600">⚠️</span> CIDR Overlap Checker
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Paste multiple CIDR blocks (one per line) to identify overlaps, conflicts, and get correction suggestions.
-        </p>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              CIDR Blocks (one per line)
-            </label>
+      <Card>
+        <CardHeader>
+          <CardTitle>CIDR Overlap Checker</CardTitle>
+          <CardDescription>
+            Check multiple CIDR blocks for overlaps and conflicts. Enter one CIDR per line.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">CIDR Blocks (one per line)</label>
             <textarea
-              value={cidrsText}
-              onChange={(e) => setCidrsText(e.target.value)}
-              placeholder="192.168.1.0/24&#10;192.168.1.128/25&#10;10.0.0.0/16&#10;10.0.1.0/24"
+              value={cidrs}
+              onChange={(e) => setCidrs(e.target.value)}
+              placeholder="192.168.1.0/24&#10;192.168.2.0/24&#10;10.0.0.0/16"
               rows={8}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-red-500 transition-colors duration-200 font-mono text-sm"
+              className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             />
-            <p className="mt-2 text-xs text-gray-500">
-              Enter at least 2 CIDR blocks to check for overlaps
+            <p className="text-xs text-muted-foreground">
+              Enter CIDR blocks to check for overlapping IP ranges
             </p>
           </div>
 
-          <button
+          <Button
             onClick={handleCheck}
-            disabled={loading || cidrsText.trim().split('\n').filter(l => l.trim()).length < 2}
-            className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-red-700 hover:to-red-800 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            disabled={loading || !cidrs.trim()}
+            className="w-full"
           >
             {loading ? 'Checking...' : 'Check for Overlaps'}
-          </button>
-        </div>
+          </Button>
 
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg animate-fade-in">
-            <p className="font-semibold">Error</p>
-            <p className="text-sm">{error}</p>
-          </div>
-        )}
-      </div>
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+              >
+                <p className="text-sm font-semibold text-destructive">Error</p>
+                <p className="text-sm text-destructive/80">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
 
-      {result && (
-        <div className={`bg-white rounded-xl shadow-lg p-6 border animate-slide-up ${
-          result.hasOverlaps ? 'border-red-200' : 'border-green-200'
-        }`}>
-          {result.hasOverlaps ? (
-            <>
-              <h3 className="text-xl font-bold text-red-800 mb-4 flex items-center gap-2">
-                <span className="text-red-600">❌</span> Overlaps Detected ({result.overlaps.length})
-              </h3>
-              
-              <div className="space-y-4 mb-6">
-                {result.overlaps.map((overlap, index) => (
-                  <div 
-                    key={index}
-                    className="p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300"
+      <AnimatePresence mode="wait">
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {result.hasOverlaps ? 'Overlaps Detected' : 'No Overlaps Found'}
+                </CardTitle>
+                <CardDescription>
+                  {result.hasOverlaps 
+                    ? `${result.overlaps.length} conflict${result.overlaps.length !== 1 ? 's' : ''} identified`
+                    : 'All CIDR blocks are non-overlapping'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!result.hasOverlaps && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-6 bg-success/10 border border-success/20 rounded-lg text-center"
                   >
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-red-700">Overlap {index + 1}:</span>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                        <div className="p-2 bg-white rounded border border-red-200">
-                          <p className="text-xs text-gray-600 font-semibold">CIDR 1</p>
-                          <p className="font-mono text-red-900 font-bold">{overlap.cidr1}</p>
-                        </div>
-                        <div className="p-2 bg-white rounded border border-red-200">
-                          <p className="text-xs text-gray-600 font-semibold">CIDR 2</p>
-                          <p className="font-mono text-red-900 font-bold">{overlap.cidr2}</p>
-                        </div>
-                      </div>
-                      <div className="p-2 bg-red-200 rounded">
-                        <p className="text-xs text-red-700 font-semibold">Overlapping Range</p>
-                        <p className="font-mono text-red-900 font-bold text-sm">{overlap.overlapRange}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    <p className="text-lg font-semibold text-success">All Clear</p>
+                    <p className="text-sm text-success/80 mt-1">
+                      No overlapping IP ranges detected in your CIDR blocks
+                    </p>
+                  </motion.div>
+                )}
 
-              {result.suggestions.length > 0 && (
-                <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
-                  <h4 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
-                    <span>💡</span> Suggestions
-                  </h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-yellow-900">
-                    {result.suggestions.map((suggestion, index) => (
-                      <li key={index}>{suggestion}</li>
+                {result.hasOverlaps && (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm">Conflicts:</h4>
+                    {result.overlaps.map((overlap, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-semibold text-sm">{overlap.cidr1}</span>
+                              <span className="text-muted-foreground text-xs">overlaps with</span>
+                              <span className="font-mono font-semibold text-sm">{overlap.cidr2}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Overlap range: <span className="font-mono">{overlap.overlapRange}</span>
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
                     ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8">
-              <div className="text-6xl mb-4">✅</div>
-              <h3 className="text-2xl font-bold text-green-800 mb-2">
-                No Overlaps Detected
-              </h3>
-              <p className="text-gray-600">
-                All CIDR blocks are unique and non-conflicting.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+                  </div>
+                )}
+
+                {result.suggestions && result.suggestions.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm">Suggestions:</h4>
+                    {result.suggestions.map((suggestion, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        className="p-3 bg-info/10 border border-info/20 rounded-lg"
+                      >
+                        <p className="text-sm text-info-foreground">{suggestion}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

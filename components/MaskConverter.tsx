@@ -1,8 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-interface ConversionResult {
+interface MaskResult {
   prefix: number;
   subnetMask: string;
   wildcardMask: string;
@@ -13,7 +17,7 @@ interface ConversionResult {
 export default function MaskConverter() {
   const [input, setInput] = useState('');
   const [type, setType] = useState<'cidr' | 'subnet' | 'wildcard' | 'prefix'>('cidr');
-  const [result, setResult] = useState<ConversionResult | null>(null);
+  const [result, setResult] = useState<MaskResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -36,7 +40,7 @@ export default function MaskConverter() {
       } else {
         setResult(data);
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -45,139 +49,160 @@ export default function MaskConverter() {
 
   const getPlaceholder = () => {
     switch (type) {
-      case 'cidr': return 'e.g., 192.168.1.0/24';
-      case 'subnet': return 'e.g., 255.255.255.0';
-      case 'wildcard': return 'e.g., 0.0.0.255';
-      case 'prefix': return 'e.g., 24';
-      default: return '';
+      case 'cidr':
+        return 'e.g., 192.168.1.0/24';
+      case 'subnet':
+        return 'e.g., 255.255.255.0';
+      case 'wildcard':
+        return 'e.g., 0.0.0.255';
+      case 'prefix':
+        return 'e.g., 24';
+    }
+  };
+
+  const getLabel = () => {
+    switch (type) {
+      case 'cidr':
+        return 'CIDR Notation';
+      case 'subnet':
+        return 'Subnet Mask';
+      case 'wildcard':
+        return 'Wildcard Mask';
+      case 'prefix':
+        return 'Prefix Length';
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-orange-600">🔀</span> Netmask Converter
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Convert between CIDR notation, subnet masks, wildcard masks, and prefix lengths for firewall and ACL rules.
-        </p>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Input Type
-            </label>
-            <select
-              value={type}
-              onChange={(e) => {
-                setType(e.target.value as typeof type);
-                setInput('');
-                setResult(null);
-                setError('');
-              }}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 transition-colors duration-200 bg-white"
-            >
-              <option value="cidr">CIDR Notation</option>
-              <option value="subnet">Subnet Mask</option>
-              <option value="wildcard">Wildcard Mask</option>
-              <option value="prefix">Prefix Length</option>
-            </select>
+      <Card>
+        <CardHeader>
+          <CardTitle>Netmask Converter</CardTitle>
+          <CardDescription>
+            Convert between CIDR notation, subnet masks, wildcard masks, and prefix lengths.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Input Type</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <Button
+                variant={type === 'cidr' ? 'default' : 'outline'}
+                onClick={() => setType('cidr')}
+                size="sm"
+              >
+                CIDR
+              </Button>
+              <Button
+                variant={type === 'subnet' ? 'default' : 'outline'}
+                onClick={() => setType('subnet')}
+                size="sm"
+              >
+                Subnet Mask
+              </Button>
+              <Button
+                variant={type === 'wildcard' ? 'default' : 'outline'}
+                onClick={() => setType('wildcard')}
+                size="sm"
+              >
+                Wildcard
+              </Button>
+              <Button
+                variant={type === 'prefix' ? 'default' : 'outline'}
+                onClick={() => setType('prefix')}
+                size="sm"
+              >
+                Prefix
+              </Button>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {type === 'cidr' && 'CIDR Notation'}
-              {type === 'subnet' && 'Subnet Mask'}
-              {type === 'wildcard' && 'Wildcard Mask'}
-              {type === 'prefix' && 'Prefix Length'}
-            </label>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={getPlaceholder()}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 transition-colors duration-200"
-              onKeyPress={(e) => e.key === 'Enter' && handleConvert()}
-            />
-          </div>
+          <Input
+            label={getLabel()}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={getPlaceholder()}
+            helperText="Enter the value to convert"
+          />
 
-          <button
+          <Button
             onClick={handleConvert}
             disabled={loading || !input.trim()}
-            className="w-full bg-gradient-to-r from-orange-600 to-orange-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-orange-700 hover:to-orange-800 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full"
           >
             {loading ? 'Converting...' : 'Convert'}
-          </button>
-        </div>
+          </Button>
 
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg animate-fade-in">
-            <p className="font-semibold">Error</p>
-            <p className="text-sm">{error}</p>
-          </div>
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+              >
+                <p className="text-sm font-semibold text-destructive">Error</p>
+                <p className="text-sm text-destructive/80">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+
+      <AnimatePresence mode="wait">
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Conversion Results</CardTitle>
+                <CardDescription>All equivalent representations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ResultCard label="Prefix Length" value={`/${result.prefix}`} />
+                  <ResultCard label="CIDR Notation" value={result.cidrNotation} />
+                  <ResultCard label="Subnet Mask" value={result.subnetMask} />
+                  <ResultCard label="Wildcard Mask" value={result.wildcardMask} />
+                  <div className="md:col-span-2">
+                    <ResultCard 
+                      label="Binary Mask" 
+                      value={result.binaryMask}
+                      mono
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
-      </div>
-
-      {result && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 animate-slide-up">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-green-600">✓</span> Conversion Results
-          </h3>
-          
-          <div className="grid grid-cols-1 gap-4">
-            <ConversionCard label="CIDR Notation" value={result.cidrNotation} icon="📝" />
-            <ConversionCard label="Prefix Length" value={`/${result.prefix}`} icon="🔢" />
-            <ConversionCard label="Subnet Mask" value={result.subnetMask} icon="🎭" />
-            <ConversionCard label="Wildcard Mask" value={result.wildcardMask} icon="🃏" />
-            <ConversionCard 
-              label="Binary Subnet Mask" 
-              value={result.binaryMask} 
-              icon="🔣"
-              mono
-            />
-          </div>
-
-          <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <span className="font-semibold">💡 Tip:</span> Wildcard masks are commonly used in Cisco ACLs and firewall rules.
-            </p>
-          </div>
-        </div>
-      )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function ConversionCard({ 
-  label, 
-  value, 
-  icon, 
-  mono = false 
-}: { 
-  label: string; 
-  value: string; 
-  icon: string;
+interface ResultCardProps {
+  label: string;
+  value: string;
   mono?: boolean;
-}) {
+}
+
+function ResultCard({ label, value, mono }: ResultCardProps) {
   return (
-    <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200 hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-gray-600 mb-1 flex items-center gap-2">
-            <span>{icon}</span> {label}
-          </p>
-          <p className={`text-lg text-gray-900 font-medium ${mono ? 'font-mono text-sm' : ''}`}>
-            {value}
-          </p>
-        </div>
-        <button
-          onClick={() => navigator.clipboard.writeText(value)}
-          className="ml-4 text-xs bg-orange-600 text-white px-3 py-2 rounded-md hover:bg-orange-700 transition-colors"
-        >
-          Copy
-        </button>
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className="p-4 bg-muted/50 rounded-lg border border-border hover:bg-muted/70 transition-colors"
+    >
+      <p className="text-xs font-medium text-muted-foreground mb-1">{label}</p>
+      <p className={`text-sm font-semibold ${mono ? 'font-mono text-xs' : ''}`}>
+        {value}
+      </p>
+    </motion.div>
   );
 }

@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface CIDRInfo {
   cidr: string;
@@ -41,7 +45,7 @@ export default function CIDRToRange() {
       } else {
         setResult(data);
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -50,79 +54,106 @@ export default function CIDRToRange() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span className="text-blue-600">📊</span> CIDR to IP Range Calculator
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Enter a CIDR notation to calculate network details, IP ranges, and subnet information.
-        </p>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              CIDR Notation
-            </label>
-            <input
-              type="text"
-              value={cidr}
-              onChange={(e) => setCidr(e.target.value)}
-              placeholder="e.g., 192.168.1.0/24"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
-              onKeyPress={(e) => e.key === 'Enter' && handleCalculate()}
-            />
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>CIDR to IP Range Calculator</CardTitle>
+          <CardDescription>
+            Enter a CIDR notation to calculate network details, IP ranges, and subnet information.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input
+            label="CIDR Notation"
+            value={cidr}
+            onChange={(e) => setCidr(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && !loading && cidr.trim() && handleCalculate()}
+            placeholder="e.g., 192.168.1.0/24"
+            helperText="Enter a valid CIDR block with prefix length (0-32)"
+          />
 
-          <button
+          <Button
             onClick={handleCalculate}
             disabled={loading || !cidr.trim()}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full"
           >
             {loading ? 'Calculating...' : 'Calculate Range'}
-          </button>
-        </div>
+          </Button>
 
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg animate-fade-in">
-            <p className="font-semibold">Error</p>
-            <p className="text-sm">{error}</p>
-          </div>
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+              >
+                <p className="text-sm font-semibold text-destructive">Error</p>
+                <p className="text-sm text-destructive/80">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
+
+      <AnimatePresence mode="wait">
+        {result && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Network Information</CardTitle>
+                <CardDescription>Complete details for {result.cidr}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InfoCard label="Network Address" value={result.networkAddress} />
+                  <InfoCard label="Broadcast Address" value={result.broadcastAddress} />
+                  <InfoCard label="First Usable IP" value={result.firstUsable} />
+                  <InfoCard label="Last Usable IP" value={result.lastUsable} />
+                  <InfoCard label="Total Hosts" value={result.totalHosts.toLocaleString()} />
+                  <InfoCard label="Usable Hosts" value={result.usableHosts.toLocaleString()} />
+                  <InfoCard label="Subnet Mask" value={result.subnetMask} />
+                  <InfoCard label="Wildcard Mask" value={result.wildcardMask} />
+                  <InfoCard label="IP Class" value={`Class ${result.ipClass}`} />
+                  <div className="md:col-span-2">
+                    <InfoCard 
+                      label="Binary Subnet Mask" 
+                      value={result.binarySubnetMask}
+                      mono
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
-      </div>
-
-      {result && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 animate-slide-up">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="text-green-600">✓</span> Network Information
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoCard label="Network Address" value={result.networkAddress} />
-            <InfoCard label="Broadcast Address" value={result.broadcastAddress} />
-            <InfoCard label="First Usable IP" value={result.firstUsable} />
-            <InfoCard label="Last Usable IP" value={result.lastUsable} />
-            <InfoCard label="Total Hosts" value={result.totalHosts.toLocaleString()} />
-            <InfoCard label="Usable Hosts" value={result.usableHosts.toLocaleString()} />
-            <InfoCard label="Subnet Mask" value={result.subnetMask} />
-            <InfoCard label="Wildcard Mask" value={result.wildcardMask} />
-            <InfoCard label="IP Class" value={result.ipClass} />
-            <InfoCard 
-              label="Binary Subnet Mask" 
-              value={result.binarySubnetMask} 
-              className="md:col-span-2 font-mono text-xs"
-            />
-          </div>
-        </div>
-      )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function InfoCard({ label, value, className = '' }: { label: string; value: string; className?: string }) {
+interface InfoCardProps {
+  label: string;
+  value: string;
+  mono?: boolean;
+}
+
+function InfoCard({ label, value, mono }: InfoCardProps) {
   return (
-    <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
-      <p className="text-sm font-semibold text-gray-600 mb-1">{label}</p>
-      <p className={`text-lg text-gray-900 font-medium ${className}`}>{value}</p>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className="p-4 bg-muted/50 rounded-lg border border-border hover:bg-muted/70 transition-colors"
+    >
+      <p className="text-xs font-medium text-muted-foreground mb-1">{label}</p>
+      <p className={`text-sm font-semibold ${mono ? 'font-mono text-xs' : ''}`}>
+        {value}
+      </p>
+    </motion.div>
   );
 }
