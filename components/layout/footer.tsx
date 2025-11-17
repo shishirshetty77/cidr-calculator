@@ -1,46 +1,37 @@
 export function Footer() {
   return (
-    <footer className="border-t bg-card transition-theme">
-      <div className="container py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">About the Project</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              A comprehensive CIDR utility application built with Next.js, TypeScript, and Tailwind CSS.
-              Features real-time validation, server-side IP calculations, and a modern, accessible interface.
+    <footer className="mt-auto border-t border-border/40 bg-card/50 backdrop-blur-sm transition-theme">
+      <div className="container py-10">
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
+          <div className="flex items-center gap-3">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
+            <p className="text-sm font-medium text-muted-foreground">
+              Crafted by
+            </p>
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
+          </div>
+          
+          <div className="max-w-2xl space-y-3">
+            <h3 className="text-lg font-semibold text-foreground">
+              Shishir Shetty
+            </h3>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              DevOps and cloud engineering enthusiast specializing in Terraform, 
+              Kubernetes, modern infrastructure, and cloud architecture. Building 
+              tools that make network engineering simpler and more accessible.
             </p>
           </div>
 
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Developer</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Created by <span className="font-medium text-foreground">Shishir Shetty</span>, a DevOps and cloud engineering enthusiast
-              specializing in Terraform, Kubernetes, modern infrastructure, and cloud architecture.
-            </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+            <span>Built with Next.js 15</span>
+            <span>•</span>
+            <span>TypeScript</span>
+            <span>•</span>
+            <span>Tailwind CSS</span>
           </div>
-        </div>
 
-        <div className="mt-8 pt-8 border-t">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>Built with Next.js 15, TypeScript, and Tailwind CSS</p>
-            <div className="flex items-center gap-6">
-              <a
-                href="https://github.com"
-                className="hover:text-foreground transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-              <a
-                href="https://vercel.com"
-                className="hover:text-foreground transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Deploy
-              </a>
-            </div>
+          <div className="pt-4 text-xs text-muted-foreground">
+            © {new Date().getFullYear()} CIDR Toolkit. All rights reserved.
           </div>
         </div>
       </div>
