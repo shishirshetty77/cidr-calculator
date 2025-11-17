@@ -2,53 +2,130 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    /* Custom Color Palette */
+    --sage: 37 30% 71%;           /* #D7C097 - Warm sage */
+    --cream: 46 54% 82%;          /* #E7DEAF - Soft cream */
+    --forest: 115 32% 56%;        /* #73AF6F - Forest green */
+    --teal: 173 100% 25%;         /* #007E6E - Deep teal */
+    
+    /* Light Theme */
+    --background: 44 40% 96%;     /* Soft warm white */
+    --foreground: 173 80% 12%;    /* Deep teal-black */
+    --card: 0 0% 100%;            /* Pure white cards */
+    --card-foreground: 173 70% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 221 83% 53%;
-    --radius: 0.5rem;
+    --popover-foreground: 173 70% 15%;
+    
+    /* Primary - Teal */
+    --primary: 173 100% 25%;      /* #007E6E */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 173 100% 20%;
+    --primary-active: 173 100% 30%;
+    
+    /* Secondary - Forest Green */
+    --secondary: 115 32% 56%;     /* #73AF6F */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 115 32% 48%;
+    --secondary-active: 115 32% 64%;
+    
+    /* Accent - Sage */
+    --accent: 37 30% 71%;         /* #D7C097 */
+    --accent-foreground: 173 60% 20%;
+    --accent-hover: 37 30% 65%;
+    --accent-active: 37 30% 77%;
+    
+    /* Muted - Cream tones */
+    --muted: 46 54% 95%;          /* Very light cream */
+    --muted-foreground: 173 30% 35%;
+    
+    /* Success - Forest */
+    --success: 115 40% 50%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning - Warm sage darker */
+    --warning: 37 50% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Destructive - Muted red with warmth */
+    --destructive: 0 50% 55%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Info - Teal lighter */
+    --info: 173 60% 45%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Borders & Inputs */
+    --border: 37 20% 85%;         /* Soft sage border */
+    --input: 37 20% 90%;
+    --ring: 173 100% 25%;         /* Teal focus ring */
+    
+    /* Surfaces */
+    --surface-1: 44 35% 98%;      /* Subtle warm tint */
+    --surface-2: 46 40% 96%;
+    --surface-3: 46 35% 94%;
+    
+    /* Radius */
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 6%;
-    --popover-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    /* Dark Theme with same palette */
+    --background: 173 30% 8%;     /* Deep teal-black */
+    --foreground: 46 50% 92%;     /* Warm cream text */
+    --card: 173 25% 12%;          /* Dark teal card */
+    --card-foreground: 46 45% 90%;
+    --popover: 173 25% 10%;
+    --popover-foreground: 46 45% 90%;
+    
+    /* Primary - Brighter teal */
+    --primary: 173 85% 45%;       /* Lighter teal for dark mode */
+    --primary-foreground: 173 100% 5%;
+    --primary-hover: 173 85% 50%;
+    --primary-active: 173 85% 40%;
+    
+    /* Secondary - Brighter forest */
+    --secondary: 115 40% 60%;     /* Lighter forest for visibility */
+    --secondary-foreground: 115 100% 10%;
+    --secondary-hover: 115 40% 65%;
+    --secondary-active: 115 40% 55%;
+    
+    /* Accent - Sage adjusted */
+    --accent: 37 35% 65%;         /* Slightly lighter sage */
+    --accent-foreground: 173 50% 10%;
+    --accent-hover: 37 35% 70%;
+    --accent-active: 37 35% 60%;
+    
+    /* Muted */
+    --muted: 173 20% 18%;
+    --muted-foreground: 46 30% 70%;
+    
+    /* Success */
+    --success: 115 45% 55%;
+    --success-foreground: 115 100% 10%;
+    
+    /* Warning */
+    --warning: 37 55% 60%;
+    --warning-foreground: 37 100% 10%;
+    
+    /* Destructive */
+    --destructive: 0 55% 60%;
+    --destructive-foreground: 0 100% 10%;
+    
+    /* Info */
+    --info: 173 65% 50%;
+    --info-foreground: 173 100% 10%;
+    
+    /* Borders & Inputs */
+    --border: 173 20% 25%;
+    --input: 173 20% 20%;
+    --ring: 173 85% 45%;
+    
+    /* Surfaces */
+    --surface-1: 173 28% 10%;
+    --surface-2: 173 25% 14%;
+    --surface-3: 173 22% 18%;
   }
 
   * {
@@ -56,17 +133,90 @@
   }
 
   body {
-    background-color: hsl(var(--background));
+    background: linear-gradient(135deg, hsl(var(--surface-1)) 0%, hsl(var(--background)) 100%);
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 3vw, 1.875rem);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3);
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
 }
 
 @layer utilities {
+  .glass {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--forest)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-soft {
+    box-shadow: 
+      0 2px 8px hsl(var(--teal) / 0.08),
+      0 1px 2px hsl(var(--teal) / 0.06);
+  }
+
+  .shadow-soft-lg {
+    box-shadow: 
+      0 10px 40px hsl(var(--teal) / 0.12),
+      0 4px 12px hsl(var(--teal) / 0.08);
+  }
+
   .container {
     width: 100%;
     margin-left: auto;
@@ -78,6 +228,8 @@
   @media (min-width: 640px) {
     .container {
       max-width: 640px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
   }
 
@@ -90,6 +242,8 @@
   @media (min-width: 1024px) {
     .container {
       max-width: 1024px;
+      padding-left: 2rem;
+      padding-right: 2rem;
     }
   }
 
@@ -101,8 +255,43 @@
 
   @media (min-width: 1536px) {
     .container {
-      max-width: 1536px;
+      max-width: 1400px;
     }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--accent) / 0.3) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
   }
 }
 
@@ -113,5 +302,6 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
