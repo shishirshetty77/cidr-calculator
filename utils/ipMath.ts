@@ -45,7 +45,7 @@ export function ipToInt(ip: string): number {
   if (parts.length !== 4 || parts.some(p => p < 0 || p > 255 || isNaN(p))) {
     throw new Error(`Invalid IP address: ${ip}`);
   }
-  return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
+  return ((parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3]) >>> 0;
 }
 
 /**
@@ -250,7 +250,7 @@ export function rangeToCIDR(startIP: string, endIP: string): string[] {
 
     const blockSize = Math.pow(2, 32 - maxSize);
     cidrs.push(`${intToIp(start)}/${maxSize}`);
-    start += blockSize;
+    start = (start + blockSize) >>> 0;
   }
 
   return cidrs;
@@ -286,13 +286,13 @@ export function subnetByCount(networkCIDR: string, subnetCount: number): SubnetI
   const subnets: SubnetInfo[] = [];
   
   for (let i = 0; i < subnetCount; i++) {
-    const subnetNetworkInt = networkInt + (i * subnetSize);
-    const subnetBroadcastInt = subnetNetworkInt + subnetSize - 1;
+    const subnetNetworkInt = (networkInt + (i * subnetSize)) >>> 0;
+    const subnetBroadcastInt = (subnetNetworkInt + subnetSize - 1) >>> 0;
     
     const totalHosts = subnetSize;
     const usableHosts = newPrefix === 32 ? 1 : (newPrefix === 31 ? 2 : totalHosts - 2);
-    const firstUsable = newPrefix === 32 ? subnetNetworkInt : (newPrefix === 31 ? subnetNetworkInt : subnetNetworkInt + 1);
-    const lastUsable = newPrefix === 32 ? subnetNetworkInt : (newPrefix === 31 ? subnetBroadcastInt : subnetBroadcastInt - 1);
+    const firstUsable = (newPrefix === 32 ? subnetNetworkInt : (newPrefix === 31 ? subnetNetworkInt : subnetNetworkInt + 1)) >>> 0;
+    const lastUsable = (newPrefix === 32 ? subnetNetworkInt : (newPrefix === 31 ? subnetBroadcastInt : subnetBroadcastInt - 1)) >>> 0;
 
     subnets.push({
       subnet: `${intToIp(subnetNetworkInt)}/${newPrefix}`,
@@ -340,14 +340,14 @@ export function subnetByHosts(networkCIDR: string, hostsPerSubnet: number): Subn
   let currentSubnetInt = networkInt;
 
   while (currentSubnetInt <= broadcastInt) {
-    const subnetBroadcastInt = currentSubnetInt + subnetSize - 1;
+    const subnetBroadcastInt = (currentSubnetInt + subnetSize - 1) >>> 0;
     
     if (subnetBroadcastInt > broadcastInt) break;
 
     const totalHosts = subnetSize;
     const usableHosts = newPrefix === 32 ? 1 : (newPrefix === 31 ? 2 : totalHosts - 2);
-    const firstUsable = newPrefix === 32 ? currentSubnetInt : (newPrefix === 31 ? currentSubnetInt : currentSubnetInt + 1);
-    const lastUsable = newPrefix === 32 ? currentSubnetInt : (newPrefix === 31 ? subnetBroadcastInt : subnetBroadcastInt - 1);
+    const firstUsable = (newPrefix === 32 ? currentSubnetInt : (newPrefix === 31 ? currentSubnetInt : currentSubnetInt + 1)) >>> 0;
+    const lastUsable = (newPrefix === 32 ? currentSubnetInt : (newPrefix === 31 ? subnetBroadcastInt : subnetBroadcastInt - 1)) >>> 0;
 
     subnets.push({
       subnet: `${intToIp(currentSubnetInt)}/${newPrefix}`,
@@ -359,7 +359,7 @@ export function subnetByHosts(networkCIDR: string, hostsPerSubnet: number): Subn
       totalHosts
     });
 
-    currentSubnetInt += subnetSize;
+    currentSubnetInt = (currentSubnetInt + subnetSize) >>> 0;
   }
 
   return subnets;
