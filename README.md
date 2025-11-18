@@ -117,15 +117,6 @@ kubectl rollout status deployment/cidr-calculator
 kubectl port-forward service/cidr-calculator-service 8080:80
 ```
 
-## Cost
-
-### Monthly Estimate (us-central1)
-- GKE Zonal Cluster: FREE
-- 1x e2-small (preemptible): ~$7.30
-- Load Balancer: ~$18.00
-- 30GB Disk: ~$1.20
-- **Total: ~$27-32/month**
-
 ## Troubleshooting
 
 ### Pod Issues
